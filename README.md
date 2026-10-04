@@ -1,6 +1,6 @@
 # Sleep Data Analysis
 
-A structured R data-analysis workspace built around a sleep dataset and a clean RStudio project layout.
+A private R data-analysis project built around a structured sleep-quality dataset and a leakage-safe baseline classification workflow.
 
 ## Repository structure
 
@@ -8,27 +8,27 @@ A structured R data-analysis workspace built around a sleep dataset and a clean 
 .
 ├── data/
 │   └── sleep_dataset.csv
+├── sleep_data_analysis.Rmd
 ├── sleep_data_analysis.Rproj
+├── R-packages.txt
 ├── .gitignore
 └── README.md
 ```
 
-- [`data/sleep_dataset.csv`](data/sleep_dataset.csv) — project dataset.
-- [`sleep_data_analysis.Rproj`](sleep_data_analysis.Rproj) — RStudio project file.
-- [`.gitignore`](.gitignore) — local and environment-specific exclusions.
+## Analysis
 
-## Current status
+[`sleep_data_analysis.Rmd`](sleep_data_analysis.Rmd) now provides a reproducible baseline rather than leaving the repository as data-only scaffolding. It validates the `Q15` sleep-quality target, creates a stratified hold-out split and tunes a Ranger Random Forest through a tidymodels workflow.
 
-The repository currently contains the dataset and project scaffolding, but no analysis script or notebook has been committed. It is therefore presented as a prepared analytical workspace rather than a completed modelling project.
+Imputation, unknown/novel factor handling and near-zero-variance filtering are part of the workflow, so they are learned inside cross-validation folds rather than on the held-out test set.
 
 ## Working with the repository
 
-Clone the repository and open `sleep_data_analysis.Rproj` in RStudio. Future analysis code should reference the dataset with the project-relative path `data/sleep_dataset.csv`.
+1. Open [`sleep_data_analysis.Rproj`](sleep_data_analysis.Rproj) in RStudio.
+2. Install packages listed in [`R-packages.txt`](R-packages.txt).
+3. Run or knit [`sleep_data_analysis.Rmd`](sleep_data_analysis.Rmd).
 
-## Recommended next development
+The analysis uses the project-relative path `data/sleep_dataset.csv`.
 
-A future analysis can be added as an `.R`, `.Rmd` or notebook file and should document the research question, preprocessing decisions, visualizations, statistical or machine-learning methods, and conclusions.
+## Scope
 
-## Reproducibility note
-
-The repository now uses descriptive filenames and project-relative structure so future analysis can be developed without machine-specific paths.
+This is an exploratory sleep-quality classification project and is not a clinical diagnostic tool.
