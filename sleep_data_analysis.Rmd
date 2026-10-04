@@ -1,0 +1,124 @@
+---
+title: "Sleep Quality Classification"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(tidymodels)
+library(ranger)
+tidymodels_prefer()
+```
+
+## Load data
+
+```{r}
+set.seed(1821)
+
+data_path <- file.path("data", "sleep_dataset.csv")
+if (!file.exists(data_path)) {
+  stop("Missing data/sleep_dataset.csv")
+}
+
+sleep_data <- read.csv(data_path, stringsAsFactors = FALSE, check.names = FALSE) %>%
+  mutate(across(where(is.character), factor))
+
+if (!"Q15" %in% names(sleep_data)) {
+  stop("Expected sleep-quality target column Q15.")
+}
+
+sleep_data <- sleep_data %>% filter(!is.na(Q15))
+table(sleep_data$Q15)
+```
+
+## Basic data quality
+
+```{r}
+data_quality <- tibble(
+  variable = names(sleep_data),
+  missing = vapply(sleep_data, function(x) sum(is.na(x)), numeric(1)),
+  unique_values = vapply(sleep_data, function(x) length(unique(x)), numeric(1))
+)
+data_quality
+```
+
+## Stratified hold-out split
+
+```{r}
+set.seed(1821)
+sleep_split <- initial_split(sleep_data, prop = 0.75, strata = Q15)
+sleep_train <- training(sleep_split)
+```
+
+## Leakage-safe preprocessing and model
+
+All learned preprocessing is part of the workflow, so it is re-estimated inside each cross-validation fold and never fitted on the held-out test partition.
+
+```{r}
+sleep_recipe <- recipe(Q15 ~ ., data = sleep_train) %>%
+  step_nzv(all_predictors()) %>%
+  step_unknown(all_nominal_predictors(), new_level = "unknown") %>%
+  step_novel(all_nominal_predictors(), new_level = "new") %>%
+  step_impute_median(all_numeric_predictors()) %>%
+  step_impute_mode(all_nominal_predictors())
+
+rf_spec <- rand_forest(
+  trees = 1000,
+  mtry = tune(),
+  min_n = tune()
+) %>%
+  set_engine("ranger", importance = "permutation") %>%
+  set_mode("classification")
+
+rf_workflow <- workflow() %>%
+  add_recipe(sleep_recipe) %>%
+  add_model(rf_spec)
+
+set.seed(1821)
+folds <- vfold_cv(sleep_train, v = 5, strata = Q15)
+
+parameters <- extract_parameter_set_dials(rf_workflow) %>%
+  finalize(sleep_train)
+
+set.seed(1821)
+grid <- grid_latin_hypercube(parameters, size = 15)
+
+set.seed(1821)
+tuning <- tune_grid(
+  rf_workflow,
+  resamples = folds,
+  grid = grid,
+  metrics = metric_set(accuracy, kap)
+)
+
+collect_metrics(tuning)
+```
+
+## Held-out evaluation
+
+```{r}
+best_parameters <- select_best(tuning, metric = "accuracy")
+final_workflow <- finalize_workflow(rf_workflow, best_parameters)
+
+set.seed(1821)
+final_fit <- last_fit(
+  final_workflow,
+  split = sleep_split,
+  metrics = metric_set(accuracy, kap)
+)
+
+collect_metrics(final_fit)
+heldout_predictions <- collect_predictions(final_fit)
+conf_mat(heldout_predictions, truth = Q15, estimate = .pred_class)
+```
+
+## Scope
+
+This is an exploratory sleep-quality classification project. It is not a clinical diagnostic tool.
+
+## Session information
+
+```{r}
+sessionInfo()
+```
