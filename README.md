@@ -1,21 +1,34 @@
-# Sleep Dataset Project
+# Sleep Data Analysis
 
-A data-analysis workspace built around `Sleep_Dataset2.csv` and an RStudio project configuration.
+A structured R data-analysis workspace built around a sleep dataset and a clean RStudio project layout.
 
-## Repository contents
+## Repository structure
 
-- [`Sleep_Dataset2.csv`](Sleep_Dataset2.csv) — project dataset.
-- [`MyNewSleep_Project.Rproj`](MyNewSleep_Project.Rproj) — RStudio project file.
-- [`.gitignore`](.gitignore) — local/project exclusions.
+```text
+.
+├── data/
+│   └── sleep_dataset.csv
+├── sleep_data_analysis.Rproj
+├── .gitignore
+└── README.md
+```
+
+- [`data/sleep_dataset.csv`](data/sleep_dataset.csv) — project dataset.
+- [`sleep_data_analysis.Rproj`](sleep_data_analysis.Rproj) — RStudio project file.
+- [`.gitignore`](.gitignore) — local and environment-specific exclusions.
 
 ## Current status
 
-The repository currently contains the dataset and project scaffolding, but no analysis script or notebook has been committed. It is therefore best treated as a prepared data project rather than a completed analytical portfolio piece.
+The repository currently contains the dataset and project scaffolding, but no analysis script or notebook has been committed. It is therefore presented as a prepared analytical workspace rather than a completed modelling project.
 
 ## Working with the repository
 
-Clone the repository and open `MyNewSleep_Project.Rproj` in RStudio. Analysis scripts can then reference `Sleep_Dataset2.csv` using a project-relative path instead of machine-specific absolute paths.
+Clone the repository and open `sleep_data_analysis.Rproj` in RStudio. Future analysis code should reference the dataset with the project-relative path `data/sleep_dataset.csv`.
+
+## Recommended next development
+
+A future analysis can be added as an `.R`, `.Rmd` or notebook file and should document the research question, preprocessing decisions, visualizations, statistical or machine-learning methods, and conclusions.
 
 ## Reproducibility note
 
-Keeping the dataset and RStudio project together provides a clean starting point for future reproducible analysis. Any future modelling or visualization code should be added as `.R`, `.Rmd` or notebook files in the repository.
+The repository now uses descriptive filenames and project-relative structure so future analysis can be developed without machine-specific paths.
